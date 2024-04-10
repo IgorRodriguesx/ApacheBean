@@ -1,0 +1,22 @@
+# Consultar versões
+
+python --version
+pip --version
+
+# Criando ambiente virtual
+
+python3 -m venv env
+
+# Ativando ambiente virtual
+
+source env/bin/activate
+
+# Instalando Apache Bean no ambiente
+
+pip install apache-beam
+
+# Entrando no ambiente interativo do python e verificando versão do apache beam instalada
+
+python
+import apache_beam
+print(apache_beam.__version__)
