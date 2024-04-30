@@ -18,7 +18,7 @@ python3 -m venv env-beam
 
 # Ativando ambiente virtual
 
-source env/bin/activate
+source env-beam/bin/activate
 
 # Instalando Apache Bean no ambiente
 
@@ -34,4 +34,7 @@ print(apache_beam.__version__)
 
 Deactivate
 
+# Ativar o vs code direto por comando
+
+code .  
 
