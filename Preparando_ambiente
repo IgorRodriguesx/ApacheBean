@@ -3,9 +3,18 @@
 python --version
 pip --version
 
-# Criando ambiente virtual
+# Criando repositório para colocar os arquivo
 
-python3 -m venv env
+mkdir alura-curso-beam
+
+# Pesquisando o diretório criado e entrando 
+
+ls
+cd alura-curso-beam
+
+# Criando ambiente virtual com o nome -> Beam
+
+python3 -m venv env-beam
 
 # Ativando ambiente virtual
 
@@ -24,3 +33,5 @@ print(apache_beam.__version__)
 # Desativar ambiente Virtual
 
 Deactivate
+
+
