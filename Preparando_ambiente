@@ -20,3 +20,7 @@ pip install apache-beam
 python
 import apache_beam
 print(apache_beam.__version__)
+
+# Desativar ambiente Virtual
+
+Deactivate
