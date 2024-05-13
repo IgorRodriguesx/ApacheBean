@@ -1,4 +1,5 @@
-import apache_beam
+import apache_beam as beam
+from apache_beam.options.pipeline_options import PipelineOptions
 
-print('Apache Beam pronto para uso!!')
-print(dir(apache_beam))
+pipeline_options = PipelineOptions(argv=none)
+pipeline = beam.Pìpeline(options = pipeline_options)
