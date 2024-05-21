@@ -32,7 +32,16 @@ def texto_para_lista(elemento, delimitador='|'):
     Recebe 2 lista
     Retorna 1 dicionário
     """
-    return elemento.split(delimitador)
+     return elemento.split(delimitador)
+
+def trata_datas(elemento):
+    """
+    Recebe um dicionário e cria um campo com ANO-MES
+    Retorna o mesmo dicionário com o novo campo
+    """
+    #"2016-08-01" >> ['2016','08'] >> "2016-08"
+    elemento['ano_mes'] = '-'.join(elemento['data_iniSE'].split('-'))[:2]
+    return elemento
 
 # Leitura dos dados do arquivo 'casos_dengue.txt' e ignorando a primeira linha (cabeçalho).
 dengue = (
@@ -40,6 +49,7 @@ dengue = (
     | "Leitura do Dataset dos casos de Dengue" >> ReadFromText('casos_dengue.txt', skip_header_lines=1)
     | "De texto para lista" >> beam.Map(texto_para_lista)
     | "De lista para dicionário" >> beam.Map(lista_para_dicionario, colunas_dengue)
+    | "Criar campo ano_mes" >> beam.Map(trata_datas)
     | "Mostrar resultados" >> beam.Map(print)
 )
 
