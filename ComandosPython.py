@@ -43,6 +43,17 @@ def trata_datas(elemento):
     elemento['ano_mes'] = '-'.join(elemento['data_iniSE'].split('-'))[:2]
     return elemento
 
+def chave_uf(elemento):
+    """
+    Receber um dicionário
+    Retornar uma tupla com o estado (uf) e o elemento (uf, dicionario)
+    """
+    chave = elemento['uf']
+    return (chave,elemento)
+
+
+
+
 # Leitura dos dados do arquivo 'casos_dengue.txt' e ignorando a primeira linha (cabeçalho).
 dengue = (
     pipeline
@@ -50,6 +61,8 @@ dengue = (
     | "De texto para lista" >> beam.Map(texto_para_lista)
     | "De lista para dicionário" >> beam.Map(lista_para_dicionario, colunas_dengue)
     | "Criar campo ano_mes" >> beam.Map(trata_datas)
+    | "Criar chave pelo estado" >> beam.Map(chave_uf)
+    | "Arupar pelo estado" >> beam.GroupByKey()
     | "Mostrar resultados" >> beam.Map(print)
 )
 
