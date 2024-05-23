@@ -51,7 +51,18 @@ def chave_uf(elemento):
     chave = elemento['uf']
     return (chave,elemento)
 
-
+def casos_dengue(elemento):
+    """
+    Recebe uma tupla ('RS', [{}, {}])
+    Retornar uma tupla ('RS-2014-12', 8.0)
+    """
+    # uf recebeu o estado (RS) e registros recebeu a array [{},{}] 
+    uf, registros = elemento
+    # Percorrer a array (registros) usando o For e dando o nome de Registro
+    for registro in registros:
+        # Se fosse utilizado 'return' ele pararia no primeiro uf que achasse e dario o retorno, o yield faz percorrer todas as ufs
+        # f"" > para formatar o retorno, {} - {} para indicar de onde será tirado o retorno (Váriavel registro, no campo 'ano_mes')
+        yield (f"{uf}-{registro['ano_mes']}", registro['casos'])
 
 
 # Leitura dos dados do arquivo 'casos_dengue.txt' e ignorando a primeira linha (cabeçalho).
@@ -62,7 +73,8 @@ dengue = (
     | "De lista para dicionário" >> beam.Map(lista_para_dicionario, colunas_dengue)
     | "Criar campo ano_mes" >> beam.Map(trata_datas)
     | "Criar chave pelo estado" >> beam.Map(chave_uf)
-    | "Arupar pelo estado" >> beam.GroupByKey()
+    | "Agrupar pelo estado" >> beam.GroupByKey()
+    | "Descompactar casos de dengue" >> beam.FlatMap(casos_dengue)
     | "Mostrar resultados" >> beam.Map(print)
 )
 
