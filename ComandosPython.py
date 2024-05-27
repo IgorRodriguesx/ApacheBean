@@ -1,4 +1,5 @@
 # Importa as bibliotecas necessárias do Apache Beam para processamento de dados em pipeline.
+import re
 import apache_beam as beam
 from apache_beam.io import ReadFromText
 from apache_beam.options.pipeline_options import PipelineOptions
@@ -24,46 +25,53 @@ colunas_dengue = [
 
 # Função para transformar uma lista em um dicionário usando as colunas definidas.
 def lista_para_dicionario(elemento, colunas):
+    """
+    Recebe uma lista e um conjunto de colunas
+    Retorna um dicionário com as colunas como chaves
+    """
     return dict(zip(colunas, elemento))
 
 # Método com parâmetro para receber texto e um delimitador, retorna uma lista de elementos pelo delimitador.
 def texto_para_lista(elemento, delimitador='|'):
-     """
-    Recebe 2 lista
-    Retorna 1 dicionário
     """
-     return elemento.split(delimitador)
+    Recebe uma string e um delimitador
+    Retorna uma lista dos elementos divididos pelo delimitador
+    """
+    return elemento.split(delimitador)
 
 def trata_datas(elemento):
     """
     Recebe um dicionário e cria um campo com ANO-MES
     Retorna o mesmo dicionário com o novo campo
     """
-    #"2016-08-01" >> ['2016','08'] >> "2016-08"
-    elemento['ano_mes'] = '-'.join(elemento['data_iniSE'].split('-'))[:2]
+    elemento['ano_mes'] = '-'.join(elemento['data_iniSE'].split('-')[:2])
     return elemento
 
 def chave_uf(elemento):
     """
-    Receber um dicionário
-    Retornar uma tupla com o estado (uf) e o elemento (uf, dicionario)
+    Recebe um dicionário
+    Retorna uma tupla com o estado (uf) e o elemento (uf, dicionario)
     """
     chave = elemento['uf']
-    return (chave,elemento)
+    return (chave, elemento)
 
 def casos_dengue(elemento):
     """
     Recebe uma tupla ('RS', [{}, {}])
-    Retornar uma tupla ('RS-2014-12', 8.0)
+    Retorna uma tupla ('RS-2014-12', 8.0)
     """
-    # uf recebeu o estado (RS) e registros recebeu a array [{},{}] 
+    # Desempacota a tupla de entrada ('RS', [{}, {}]).
     uf, registros = elemento
-    # Percorrer a array (registros) usando o For e dando o nome de Registro
+    
+    # Itera sobre os registros de casos de dengue.
     for registro in registros:
-        # Se fosse utilizado 'return' ele pararia no primeiro uf que achasse e dario o retorno, o yield faz percorrer todas as ufs
-        # f"" > para formatar o retorno, {} - {} para indicar de onde será tirado o retorno (Váriavel registro, no campo 'ano_mes')
-        yield (f"{uf}-{registro['ano_mes']}", registro['casos'])
-
+        # Verifica se o campo 'casos' contém dígitos.
+        if bool(re.search(r'\d', registro['casos'])):
+            # Se o campo 'casos' contém dígitos, cria uma tupla com a chave composta (uf-ano_mes) e o valor dos casos como um float.
+            yield (f"{uf}-{registro['ano_mes']}", float(registro['casos']))
+        else:
+            # Se o campo 'casos' não contém dígitos, cria uma tupla com a chave composta (uf-ano_mes) e o valor dos casos como 0.0.
+            yield (f"{uf}-{registro['ano_mes']}", 0.0)
 
 # Leitura dos dados do arquivo 'casos_dengue.txt' e ignorando a primeira linha (cabeçalho).
 dengue = (
@@ -75,6 +83,7 @@ dengue = (
     | "Criar chave pelo estado" >> beam.Map(chave_uf)
     | "Agrupar pelo estado" >> beam.GroupByKey()
     | "Descompactar casos de dengue" >> beam.FlatMap(casos_dengue)
+    | "Somar dos casos pela chave" >> beam.CombinePerKey(sum)
     | "Mostrar resultados" >> beam.Map(print)
 )
 
