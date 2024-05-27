@@ -87,5 +87,10 @@ dengue = (
     | "Mostrar resultados" >> beam.Map(print)
 )
 
+chuvas = (
+    pipeline
+    | "Leitura do Dataset de chuvas" >> ReadFromText('chuvas.csv', skip_header_lines=1)
+)
+
 # Execução do pipeline.
 pipeline.run()
